@@ -31,33 +31,33 @@ spec:
         service: udaconnect-api
     spec:
       containers:
-      - image: udacity/nd064-udaconnect-api:latest
+      - image: mengjinfeng0331/connection-api:latest
         name: udaconnect-api
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: db-env
+              name: db-connection-env
               key: DB_USERNAME
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: db-secret
+              name: db-connection-secret
               key: DB_PASSWORD
         - name: DB_NAME
           valueFrom:
             configMapKeyRef:
-              name: db-env
+              name: db-connection-env
               key: DB_NAME
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
-              name: db-env
+              name: db-connection-env
               key: DB_HOST
         - name: DB_PORT
           valueFrom:
             configMapKeyRef:
-              name: db-env
+              name: db-connection-env
               key: DB_PORT
       restartPolicy: Always
