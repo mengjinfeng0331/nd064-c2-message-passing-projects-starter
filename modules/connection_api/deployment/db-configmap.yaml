@@ -7,4 +7,4 @@ data:
   DB_PORT: "5432"
   PERSON_API_URL: 'http://person-service:5000/'
 metadata:
-  name: db-connection-env
+  name: connection-env
