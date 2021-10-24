@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timedelta
 from typing import Dict, List
 
 from app import db
