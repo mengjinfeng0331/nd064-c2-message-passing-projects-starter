@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 data:
-  DB_USERNAME: "ct_person"
+  DB_USERNAME: "ct_admin"
   DB_NAME: "person"
   DB_HOST: "postgres-person"
   DB_PORT: "5432"

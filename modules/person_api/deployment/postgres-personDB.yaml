@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: postgres-person-container
-          image: library/postgres:latest
+          image: postgis/postgis:12-2.5-alpine
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
