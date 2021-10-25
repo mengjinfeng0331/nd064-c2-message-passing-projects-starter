@@ -65,7 +65,7 @@ spec:
           - name: POSTGRES_USER
             valueFrom:
               configMapKeyRef:
-                name: connection-env
+                name: db-geoconnections-map
                 key: DB_USERNAME
           - name: POSTGRES_PASSWORD
             valueFrom:
@@ -75,7 +75,7 @@ spec:
           - name: POSTGRES_DB
             valueFrom:
               configMapKeyRef:
-                name: connection-env
+                name: db-geoconnections-map
                 key: DB_NAME
           volumeMounts:
             - mountPath: /var/lib/geoconnection/data

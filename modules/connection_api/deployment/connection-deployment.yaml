@@ -38,7 +38,7 @@ spec:
         - name: DB_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: connection-env
+              name: db-geoconnections-map
               key: DB_USERNAME
         - name: DB_PASSWORD
           valueFrom:
@@ -48,16 +48,16 @@ spec:
         - name: DB_NAME
           valueFrom:
             configMapKeyRef:
-              name: connection-env
+              name: db-geoconnections-map
               key: DB_NAME
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
-              name: connection-env
+              name: db-geoconnections-map
               key: DB_HOST
         - name: DB_PORT
           valueFrom:
             configMapKeyRef:
-              name: connection-env
+              name: db-geoconnections-map
               key: DB_PORT
       restartPolicy: Always
