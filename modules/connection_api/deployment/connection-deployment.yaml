@@ -31,7 +31,7 @@ spec:
         service: geoconnections-api
     spec:
       containers:
-      - image: fthiagomedeiros/geoconnections-service-api:latest
+      - image: mengjinfeng0331/connection-api:latest
         name: geoconnections-api-container
         imagePullPolicy: Always
         env:
