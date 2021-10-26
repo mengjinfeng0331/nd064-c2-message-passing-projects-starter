@@ -3,8 +3,10 @@ from typing import Optional
 
 from app.udaconnect.schemas import (
     ConnectionSchema,
+    LocationSchema,
+    PersonSchema,
 )
-from app.udaconnect.services import ConnectionService
+from app.udaconnect.services import ConnectionService, LocationService, PersonService
 from flask import request
 from flask_accepts import responds
 from flask_restx import Namespace, Resource
