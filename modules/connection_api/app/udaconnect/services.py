@@ -1,12 +1,15 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List
-import requests
 
-from app.config import PERSON_SERVICE_ENDPOINT
-from app import db
-from app.udaconnect.models import Connection, Location, Person
+import requests
+from geoalchemy2.functions import ST_Point
 from sqlalchemy.sql import text
+
+from app import db
+from app.config import PERSON_SERVICE_ENDPOINT
+from app.udaconnect.models import Connection, Location, Person
+from app.udaconnect.schemas import LocationSchema
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("udaconnect-api")
@@ -115,7 +118,6 @@ class PersonService:
 
     @staticmethod
     def retrieve_all() -> List[Person]:
-
         persons = requests.get(PERSON_SERVICE_ENDPOINT + 'api/persons')
         persons = persons.json()
         person_list = []
