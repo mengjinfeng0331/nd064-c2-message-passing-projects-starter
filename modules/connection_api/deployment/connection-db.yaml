@@ -12,7 +12,7 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/mnt/data/geoconnections-db"
+    path: "/mnt/data/connections-db"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -65,7 +65,7 @@ spec:
           - name: POSTGRES_USER
             valueFrom:
               configMapKeyRef:
-                name: db-geoconnections-map
+                name: db-geoconnections-env
                 key: DB_USERNAME
           - name: POSTGRES_PASSWORD
             valueFrom:
@@ -75,7 +75,7 @@ spec:
           - name: POSTGRES_DB
             valueFrom:
               configMapKeyRef:
-                name: db-geoconnections-map
+                name: db-geoconnections-env
                 key: DB_NAME
           volumeMounts:
             - mountPath: /var/lib/geoconnectionsdb/data

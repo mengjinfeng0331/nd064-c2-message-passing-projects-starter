@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     service: geoconnections-api
-  name: geoconnections-svc-api
+  name: geoconnections-api
 spec:
   ports:
   - name: "5000"
@@ -38,7 +38,7 @@ spec:
         - name: DB_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: db-geoconnections-map
+              name: db-geoconnections-env
               key: DB_USERNAME
         - name: DB_PASSWORD
           valueFrom:
@@ -48,21 +48,21 @@ spec:
         - name: DB_NAME
           valueFrom:
             configMapKeyRef:
-              name: db-geoconnections-map
+              name: db-geoconnections-env
               key: DB_NAME
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
-              name: db-geoconnections-map
+              name: db-geoconnections-env
               key: DB_HOST
         - name: DB_PORT
           valueFrom:
             configMapKeyRef:
-              name: db-geoconnections-map
+              name: db-geoconnections-env
               key: DB_PORT
-        - name: PERSON_SERVICE_ENDPOINT
+        - name: PERSON_API_URL
           valueFrom:
             configMapKeyRef:
-              name: db-geoconnections-map
-              key: PERSON_SERVICE_ENDPOINT
+              name: db-geoconnections-env
+              key: PERSON_API_URL
       restartPolicy: Always

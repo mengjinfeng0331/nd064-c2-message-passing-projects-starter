@@ -7,7 +7,7 @@ from geoalchemy2.functions import ST_Point
 from sqlalchemy.sql import text
 
 from app import db
-from app.config import PERSON_SERVICE_ENDPOINT
+from app.config import PERSON_API_URL
 from app.udaconnect.models import Connection, Location, Person
 from app.udaconnect.schemas import LocationSchema
 
@@ -118,7 +118,7 @@ class PersonService:
 
     @staticmethod
     def retrieve_all() -> List[Person]:
-        persons = requests.get(PERSON_SERVICE_ENDPOINT + 'api/persons')
+        persons = requests.get(PERSON_API_URL + 'api/persons')
         persons = persons.json()
         person_list = []
 
