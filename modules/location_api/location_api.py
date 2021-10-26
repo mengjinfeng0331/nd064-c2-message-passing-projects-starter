@@ -5,8 +5,8 @@ from kafka import KafkaConsumer
 from sqlalchemy import create_engine
 from geoalchemy2.functions import ST_AsText, ST_Point
 
-kafka_url = os.environ["KAFKA_URL"]
-kafka_topic = os.environ["KAFKA_TOPIC"]
+KAFKA_URL = os.environ["KAFKA_URL"]
+KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]
 
 DB_USERNAME = os.environ['DB_USERNAME']
 DB_PASSWORD = os.environ["DB_PASSWORD"]
@@ -14,7 +14,7 @@ DB_NAME = os.environ['DB_NAME']
 DB_HOST = os.environ['DB_HOST']
 DB_PORT = os.environ['DB_PORT']
 
-consumer = KafkaConsumer(kafka_topic)
+consumer = KafkaConsumer(KAFKA_TOPIC, bootstrap_servers=[KAFKA_URL])
 
 
 def write2db(location):
