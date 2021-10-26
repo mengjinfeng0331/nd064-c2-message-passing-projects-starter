@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: location-service
-  label:
+  labels:
     app: location-api
 spec:
   selector:
