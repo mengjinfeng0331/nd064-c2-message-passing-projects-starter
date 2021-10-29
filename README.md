@@ -78,7 +78,8 @@ Afterwards, you can test that `kubectl` works by running a command like `kubectl
 
 ### Steps
 #### 1. start the kafka
-first, make sure that helm is installed.
+Kafka is the message queue for collecting the user location data. 
+To setup kafka queue, needs to install helm first.
 
     $ helm version # check helm is installed
     $ helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -101,7 +102,8 @@ sample-kafka-0                             1/1     Running   1          3d
 ```
 
 #### 2. Person service
-Go to the person_api folder and apply the deployment files
+Person service is responsible for creating new user and retrieving existing user data.
+To deploy person service, go to the person_api folder and apply the deployment files
 ``` shell
 $ cd modules/person_api
 $ kubectl apply -f deployment/
@@ -118,7 +120,7 @@ sample-kafka-0                             1/1     Running   1          3d
 postgres-person-6f469db6cc-qrcvv           1/1     Running   0          3d
 
 ## extract the postgre-person pod name (postgres-person-6f469db6cc-qrcvv) from above and put it in below
-sh /scripts/run_db_command.sh <POSTGRES_DB_POD_NAME>
+sh /scripts/run_db_command.sh <POSTGRES_PERSON_POD_NAME>
 
 ```
 
@@ -132,15 +134,15 @@ $ curl http://localhost:30001/health
 
 ```
 
-#### 3.
-
-Go to the connection_api folder and apply the deployment files
+#### 3. connection_api
+Connection_api would collect person information and location data to find people nearby
+To deply connection_api, go to the connection_api folder and apply the deployment files
 ``` shell
 $ cd modules/connection_api
 $ kubectl apply -f deployment/
 ```
 Wait for the deployments to become ready and populate the connection-postgre database
-You need to find the pod name for your postgre db for person 
+You need to find the pod name for your postgre db for location 
 ``` shell
 
 $ kubectl get pods
@@ -155,32 +157,37 @@ postgres-geoconnections-78c489646d-vq67k   1/1     Running   0          46h
 sh /scripts/run_db_command.sh <POSTGRES_DB_POD_NAME>
 
 ```
-Finally, check if the connection api service is running by http://localhost:30002/api/persons/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5, and you should see something like below
+Finally, check if the connection api service is running by 
+http://localhost:30002/api/persons/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5
+and you should see data returned.
 
 
-#### 4. 
-deploy location_event service
+#### 4. location_event serivce. 
+location-event service collects the mobile location information and put it to a kafka queue and would be processed by the location_API service later on. 
+To deploy location_event service, run the following:
 ``` shell
 $ cd modules/location_event
 $ kubectl apply -f deployment/
 ```
 
-#### 5. 
-deploy location_api service
+#### 5. Location_api service
+Location_api service listens to the kakfa queue for location data, and writes to the location database.
+To deploy location_api service, run the following:
 ``` shell
 $ cd modules/location_api
 $ kubectl apply -f deployment/
 ```
 
-#### 6. 
-deploy frontend service
+#### 6. Frontend service.
+Frontend serivce would create the UI and allow user interaction with the geoconnection service
+To deploy frontend service, run the followings:
 ``` shell
 $ cd modules/frontend
 $ kubectl apply -f deployment/
 ```
 
 
-#### check all services and deploymets
+### Finally, check all services and deploymets
 
 ``` shell
 
@@ -232,6 +239,36 @@ NAME                                READY   AGE
 statefulset.apps/sample-zookeeper   1/1     3d23h
 statefulset.apps/sample-kafka       1/1     3d23h
 
+```
+
+
+To simulate a mobile location update, you could follow the steps below:
+
+``` shell
+## first need to find the pod name for the location-event 
+
+$ kubectl get pods  -o=custom-columns=NAME:.metadata.name | grep location-event
+
+location-event-api-7dfbcbf74c-dzqmw
+
+## next use the location-event name from above 
+$ kubectl exec -it [location-event POD NAME] -- sh
+
+## run the python script and you should see the following entry being created
+
+$ python grpc_client_test.py
+
+stub1 create for  id: 34567
+person_id: 12
+longitude: "-100"
+latitude: "200"
+creation_time: "2020-03-12"
+
+stub2 create for  id: 3412567
+person_id: 123
+longitude: "1040"
+latitude: "20"
+creation_time: "2021-04-22"
 ```
 
 These pages should also load on your web browser:
