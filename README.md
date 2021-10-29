@@ -77,6 +77,9 @@ Type `exit` to exit the virtual OS and you will find yourself back in your compu
 Afterwards, you can test that `kubectl` works by running a command like `kubectl describe services`. It should not return any errors.
 
 ### Steps
+#### 0. architecture
+
+![alt text](https://github.com/mengjinfeng0331/nd064-c2-message-passing-projects-starter/blob/master/docs/architecture_design.png?raw=true) "Architectural Diagram -  Now you have set up a Kafka component.")
 #### 1. start the kafka
 Kafka is the message queue for collecting the user location data. 
 To setup kafka queue, needs to install helm first.
