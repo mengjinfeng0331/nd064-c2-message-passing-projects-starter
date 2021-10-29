@@ -1,0 +1,11 @@
+The original app has three services: person, location, connection. 
+
+For the location service, each mobile would update its location regularly and this would result in huge amount data with lots of users at the same time, and it's better to user grpc instead of REST API to gain better efficiency. Location service is isolated from other services, as other connection does not depend on location service, but only need to read from the location database, hence location service could be its own micro-service. With huge amount of data going into the location service, it's better to use grpc to collect the user location information, and pipe it to a kafka queue so that large amount of data could be handle. So here I would create two micro-services, location-event service, and location-api service. Location-event service would collect the mobile location data and pipe it to a kakfa queue. Location-api service would listen on the kakfa queue and put the data into the location database.
+
+For person service, i would make it a micro-service, and the traffic on person service (creating new person or retrieve existing person data) would not be as significant, I would just keep REST API. Person service would keep its own person database. 
+
+For connection service, it depends on the person service ( query person information) and location database ( reading from location information). It would be on its own micro-service. REST API should be ok, as connection service is only used when user uses the app.
+
+
+
+

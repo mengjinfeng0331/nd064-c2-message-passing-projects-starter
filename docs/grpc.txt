@@ -1,0 +1,25 @@
+## first need to find the pod name for the location-event 
+
+$ kubectl get pods  -o=custom-columns=NAME:.metadata.name | grep location-event
+
+location-event-api-7dfbcbf74c-dzqmw
+
+## next use the location-event name from above 
+$ kubectl exec -it [location-event POD NAME] -- sh
+
+## run the python script and you should see the following entry being created
+
+# python grpc_client_test.py
+
+stub1 create for  id: 34567
+person_id: 12
+longitude: "-100"
+latitude: "200"
+creation_time: "2020-03-12"
+
+stub2 create for  id: 3412567
+person_id: 123
+longitude: "1040"
+latitude: "20"
+creation_time: "2021-04-22"
+

@@ -1,0 +1,88 @@
+{
+	"info": {
+		"_postman_id": "239ade45-cab1-48da-8197-6248055f2492",
+		"name": "udaconnect",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "frontend",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "10.0.107.122:30000",
+					"host": [
+						"10",
+						"0",
+						"107",
+						"122"
+					],
+					"port": "30000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "person",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "10.0.107.122:30001/api/persons",
+					"host": [
+						"10",
+						"0",
+						"107",
+						"122"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"persons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "connection",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.0.107.122:30002/api/persons/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5",
+					"protocol": "http",
+					"host": [
+						"10",
+						"0",
+						"107",
+						"122"
+					],
+					"port": "30002",
+					"path": [
+						"api",
+						"persons",
+						"5",
+						"connection"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2020-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2020-12-30"
+						},
+						{
+							"key": "distance",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
