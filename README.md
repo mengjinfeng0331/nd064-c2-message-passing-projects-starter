@@ -78,8 +78,16 @@ Afterwards, you can test that `kubectl` works by running a command like `kubectl
 
 ### Steps
 #### 0. architecture
+This system would be composed of 5 microservices + 1 message queue:
+* location-event serivce
+* location-api serivce
+* person-api service
+* connection-api service
+* frontend service
+* kafka message queue
 
-![alt text](https://github.com/mengjinfeng0331/nd064-c2-message-passing-projects-starter/blob/master/docs/architecture_design.png?raw=true) "Architectural Diagram -  Now you have set up a Kafka component.")
+![alt text](https://github.com/mengjinfeng0331/nd064-c2-message-passing-projects-starter/blob/master/docs/architecture_design.png?raw=true)
+
 #### 1. start the kafka
 Kafka is the message queue for collecting the user location data. 
 To setup kafka queue, needs to install helm first.
