@@ -26,4 +26,6 @@ example_message_2 = location_pb2.LocationMessage(
 )
 
 response = stub.Create(example_message_1)
-response = stub.Create(example_message_2)
+print('stub1 create for ', example_message_1)
+response2 = stub.Create(example_message_2)
+print('stub2 create for ', example_message_2)

@@ -29,6 +29,7 @@ We will be installing the tools that we'll need to use for getting our environme
 3. [Set up `kubectl`](https://rancher.com/docs/rancher/v2.x/en/cluster-admin/cluster-access/kubectl/)
 4. [Install VirtualBox](https://www.virtualbox.org/wiki/Downloads) with at least version 6.0
 5. [Install Vagrant](https://www.vagrantup.com/docs/installation) with at least version 2.0
+5. [Install helm](https://helm.sh/docs/intro/quickstart/) 
 
 ### Environment Setup
 To run the application, you will need a K8s cluster running locally and to interface with it via `kubectl`. We will be using Vagrant with VirtualBox to run K3s.
@@ -76,77 +77,164 @@ Type `exit` to exit the virtual OS and you will find yourself back in your compu
 Afterwards, you can test that `kubectl` works by running a command like `kubectl describe services`. It should not return any errors.
 
 ### Steps
-1. `kubectl apply -f deployment/db-configmap.yaml` - Set up environment variables for the pods
-2. `kubectl apply -f deployment/db-secret.yaml` - Set up secrets for the pods
-3. `kubectl apply -f deployment/postgres.yaml` - Set up a Postgres database running PostGIS
-4. `kubectl apply -f deployment/udaconnect-api.yaml` - Set up the service and deployment for the API
-5. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
-6. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
+#### 1. start the kafka
+first, make sure that helm is installed.
 
-Manually applying each of the individual `yaml` files is cumbersome but going through each step provides some context on the content of the starter project. In practice, we would have reduced the number of steps by running the command against a directory to apply of the contents: `kubectl apply -f deployment/`.
+    $ helm version # check helm is installed
+    $ helm repo add bitnami https://charts.bitnami.com/bitnami
+    $ helm repo update
 
-Note: The first time you run this project, you will need to seed the database with dummy data. Use the command `sh scripts/run_db_command.sh <POD_NAME>` against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`). Subsequent runs of `kubectl apply` for making changes to deployments or services shouldn't require you to seed the database again!
+    $ helm install sample bitnami/kafka \
+     --set volumePermissions.enabled=true \
+     --set zookeeper.volumePermissions.enabled=true 
 
-### Verifying it Works
-Once the project is up and running, you should be able to see 3 deployments and 3 services in Kubernetes:
-`kubectl get pods` and `kubectl get services` - should both return `udaconnect-app`, `udaconnect-api`, and `postgres`
+Each Kafka broker can be accessed by producers via port 9092 on the following DNS name(s) from within your cluster:
 
+    sample-kafka-0.sample-kafka-headless.default.svc.cluster.local:9092
+
+After a while, check that kafka is running in the kubernetes cluster
+``` shell 
+$ kubectl get pods
+NAME                                       READY   STATUS    RESTARTS   AGE
+sample-zookeeper-0                         1/1     Running   0          3d
+sample-kafka-0                             1/1     Running   1          3d
+```
+
+#### 2. Person service
+Go to the person_api folder and apply the deployment files
+``` shell
+$ cd modules/person_api
+$ kubectl apply -f deployment/
+```
+
+Wait for the deployments to become ready and populate the person-postgre database
+You need to find the pod name for your postgre db for person 
+``` shell
+
+$ kubectl get pods
+NAME                                       READY   STATUS    RESTARTS   AGE
+sample-zookeeper-0                         1/1     Running   0          3d
+sample-kafka-0                             1/1     Running   1          3d
+postgres-person-6f469db6cc-qrcvv           1/1     Running   0          3d
+
+## extract the postgre-person pod name (postgres-person-6f469db6cc-qrcvv) from above and put it in below
+sh /scripts/run_db_command.sh <POSTGRES_DB_POD_NAME>
+
+```
+
+Finally, check if the person api service is running by http://localhost:30001/api/persons, and you should see something like below
+``` shell
+$ curl http://localhost:30001/api/persons
+[{"company_name": "Alpha Omega Upholstery", "first_name": "Taco", "last_name": "Fargo", "id": 5}, {"company_name": "USDA", "first_name": "Frank", "last_name": "Shader", "id": 6}, {"company_name": "Hampton, Hampton and McQuill", "first_name": "Pam", "last_name": "Trexler", "id": 1}, {"company_name": "Paul Badman & Associates", "first_name": "Paul", "last_name": "Badman", "id": 8}, {"company_name": "The Chicken Sisters Restaurant", "first_name": "Otto", "last_name": "Spring", "id": 9}]
+
+$ curl http://localhost:30001/health
+"healthy"
+
+```
+
+#### 3.
+
+Go to the connection_api folder and apply the deployment files
+``` shell
+$ cd modules/connection_api
+$ kubectl apply -f deployment/
+```
+Wait for the deployments to become ready and populate the connection-postgre database
+You need to find the pod name for your postgre db for person 
+``` shell
+
+$ kubectl get pods
+NAME                                       READY   STATUS    RESTARTS   AGE
+sample-zookeeper-0                         1/1     Running   0          3d
+sample-kafka-0                             1/1     Running   1          3d
+postgres-person-6f469db6cc-qrcvv           1/1     Running   0          3d
+person-api-dc85c7fb7-4zpn4                 1/1     Running   0          3d
+postgres-geoconnections-78c489646d-vq67k   1/1     Running   0          46h
+
+## extract the postgre-geoconnection pod name (postgres-geoconnections-78c489646d-vq67k) from above and put it in below
+sh /scripts/run_db_command.sh <POSTGRES_DB_POD_NAME>
+
+```
+Finally, check if the connection api service is running by http://localhost:30002/api/persons/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5, and you should see something like below
+
+
+#### 4. 
+deploy location_event service
+``` shell
+$ cd modules/location_event
+$ kubectl apply -f deployment/
+```
+
+#### 5. 
+deploy location_api service
+``` shell
+$ cd modules/location_api
+$ kubectl apply -f deployment/
+```
+
+#### 6. 
+deploy frontend service
+``` shell
+$ cd modules/frontend
+$ kubectl apply -f deployment/
+```
+
+
+#### check all services and deploymets
+
+``` shell
+
+$ kubectl get all
+NAME                                           READY   STATUS    RESTARTS   AGE
+pod/sample-zookeeper-0                         1/1     Running   0          3d23h
+pod/sample-kafka-0                             1/1     Running   1          3d23h
+pod/postgres-person-6f469db6cc-qrcvv           1/1     Running   0          3d23h
+pod/person-api-dc85c7fb7-4zpn4                 1/1     Running   0          3d23h
+pod/postgres-geoconnections-78c489646d-vq67k   1/1     Running   0          2d22h
+pod/geoconnections-api-5c5599549b-dpmwb        1/1     Running   0          2d22h
+pod/location-event-api-7dfbcbf74c-dzqmw        1/1     Running   0          2d22h
+pod/location-api-76bd67bd4c-llxks              1/1     Running   0          2d21h
+pod/udaconnect-app-55d5f89756-zv96s            1/1     Running   0          2d
+
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/kubernetes                  ClusterIP   10.43.0.1       <none>        443/TCP                      3d23h
+service/sample-kafka-headless       ClusterIP   None            <none>        9092/TCP,9093/TCP            3d23h
+service/sample-zookeeper-headless   ClusterIP   None            <none>        2181/TCP,2888/TCP,3888/TCP   3d23h
+service/sample-zookeeper            ClusterIP   10.43.94.144    <none>        2181/TCP,2888/TCP,3888/TCP   3d23h
+service/sample-kafka                ClusterIP   10.43.8.135     <none>        9092/TCP                     3d23h
+service/person-service              NodePort    10.43.146.139   <none>        5000:30001/TCP               3d23h
+service/postgres-person             NodePort    10.43.162.184   <none>        5432:30481/TCP               3d23h
+service/postgres-geoconnections     NodePort    10.43.97.33     <none>        5432:31564/TCP               2d22h
+service/geoconnections-api          NodePort    10.43.186.156   <none>        5000:30002/TCP               2d22h
+service/location-event-service      NodePort    10.43.134.158   <none>        5005:30003/TCP               2d22h
+service/location-service            NodePort    10.43.75.198    <none>        9092:32388/TCP               2d21h
+service/udaconnect-app              NodePort    10.43.168.176   <none>        3000:30000/TCP               2d
+
+NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/postgres-person           1/1     1            1           3d23h
+deployment.apps/person-api                1/1     1            1           3d23h
+deployment.apps/postgres-geoconnections   1/1     1            1           2d22h
+deployment.apps/geoconnections-api        1/1     1            1           2d22h
+deployment.apps/location-event-api        1/1     1            1           2d22h
+deployment.apps/location-api              1/1     1            1           2d21h
+deployment.apps/udaconnect-app            1/1     1            1           2d
+
+NAME                                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/postgres-person-6f469db6cc           1         1         1       3d23h
+replicaset.apps/person-api-dc85c7fb7                 1         1         1       3d23h
+replicaset.apps/postgres-geoconnections-78c489646d   1         1         1       2d22h
+replicaset.apps/geoconnections-api-5c5599549b        1         1         1       2d22h
+replicaset.apps/location-event-api-7dfbcbf74c        1         1         1       2d22h
+replicaset.apps/location-api-76bd67bd4c              1         1         1       2d21h
+replicaset.apps/udaconnect-app-55d5f89756            1         1         1       2d
+
+NAME                                READY   AGE
+statefulset.apps/sample-zookeeper   1/1     3d23h
+statefulset.apps/sample-kafka       1/1     3d23h
+
+```
 
 These pages should also load on your web browser:
 * `http://localhost:30001/` - OpenAPI Documentation
 * `http://localhost:30001/api/` - Base path for API
 * `http://localhost:30000/` - Frontend ReactJS Application
-
-#### Deployment Note
-You may notice the odd port numbers being served to `localhost`. [By default, Kubernetes services are only exposed to one another in an internal network](https://kubernetes.io/docs/concepts/services-networking/service/). This means that `udaconnect-app` and `udaconnect-api` can talk to one another. For us to connect to the cluster as an "outsider", we need to a way to expose these services to `localhost`.
-
-Connections to the Kubernetes services have been set up through a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport). (While we would use a technology like an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) to expose our Kubernetes services in deployment, a NodePort will suffice for development.)
-
-## Development
-### New Services
-New services can be created inside of the `modules/` subfolder. You can choose to write something new with Flask, copy and rework the `modules/api` service into something new, or just create a very simple Python application.
-
-As a reminder, each module should have:
-1. `Dockerfile`
-2. Its own corresponding DockerHub repository
-3. `requirements.txt` for `pip` packages
-4. `__init__.py`
-
-### Docker Images
-`udaconnect-app` and `udaconnect-api` use docker images from `isjustintime/udaconnect-app` and `isjustintime/udaconnect-api`. To make changes to the application, build your own Docker image and push it to your own DockerHub repository. Replace the existing container registry path with your own.
-
-## Configs and Secrets
-In `deployment/db-secret.yaml`, the secret variable is `d293aW1zb3NlY3VyZQ==`. The value is simply encoded and not encrypted -- this is ***not*** secure! Anyone can decode it to see what it is.
-```bash
-# Decodes the value into plaintext
-echo "d293aW1zb3NlY3VyZQ==" | base64 -d
-
-# Encodes the value to base64 encoding. K8s expects your secrets passed in with base64
-echo "hotdogsfordinner" | base64
-```
-This is okay for development against an exclusively local environment and we want to keep the setup simple so that you can focus on the project tasks. However, in practice we should not commit our code with secret values into our repository. A CI/CD pipeline can help prevent that.
-
-## PostgreSQL Database
-The database uses a plug-in named PostGIS that supports geographic queries. It introduces `GEOMETRY` types and functions that we leverage to calculate distance between `ST_POINT`'s which represent latitude and longitude.
-
-_You may find it helpful to be able to connect to the database_. In general, most of the database complexity is abstracted from you. The Docker container in the starter should be configured with PostGIS. Seed scripts are provided to set up the database table and some rows.
-### Database Connection
-While the Kubernetes service for `postgres` is running (you can use `kubectl get services` to check), you can expose the service to connect locally:
-```bash
-kubectl port-forward svc/postgres 5432:5432
-```
-This will enable you to connect to the database at `localhost`. You should then be able to connect to `postgresql://localhost:5432/geoconnections`. This is assuming you use the built-in values in the deployment config map.
-### Software
-To manually connect to the database, you will need software compatible with PostgreSQL.
-* CLI users will find [psql](http://postgresguide.com/utilities/psql.html) to be the industry standard.
-* GUI users will find [pgAdmin](https://www.pgadmin.org/) to be a popular open-source solution.
-
-## Architecture Diagrams
-Your architecture diagram should focus on the services and how they talk to one another. For our project, we want the diagram in a `.png` format. Some popular free software and tools to create architecture diagrams:
-1. [Lucidchart](https://www.lucidchart.com/pages/)
-2. [Google Docs](docs.google.com) Drawings (In a Google Doc, _Insert_ - _Drawing_ - _+ New_)
-3. [Diagrams.net](https://app.diagrams.net/)
-
-## Tips
-* We can access a running Docker container using `kubectl exec -it <pod_id> sh`. From there, we can `curl` an endpoint to debug network issues.
-* The starter project uses Python Flask. Flask doesn't work well with `asyncio` out-of-the-box. Consider using `multiprocessing` to create threads for asynchronous behavior in a standard Flask application.

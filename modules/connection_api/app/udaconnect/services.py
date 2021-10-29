@@ -118,7 +118,7 @@ class PersonService:
 
     @staticmethod
     def retrieve_all() -> List[Person]:
-        persons = requests.get(PERSON_API_URL + 'api/persons')
+        persons = requests.get(PERSON_API_URL)
         persons = persons.json()
         person_list = []
 
