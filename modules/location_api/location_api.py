@@ -30,11 +30,9 @@ def write2db(location):
     conn.execute(sql)
 
 
-for message in consumer:
-    message = message.value.decode()
-    message = json.loads(message)
-    print(message)
-    write2db(message)
-
-
-
+while True:
+    for message in consumer:
+        message = message.value.decode()
+        message = json.loads(message)
+        print(message)
+        write2db(message)
