@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  description: API for udaconnect
+  version: "1.0.0"
+  title: udaconnect API
+paths:
+  /api/persons:
+    get:
+      summary: Retrieves persons
+      description: Retrieves all the person info from database
+      responses:
+        '200':
+          description: All person info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/person'
+    post:
+      summary: Adds a person
+      description: Creates a new person and add to database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/person'
+        description: person that was created
+      responses:
+        '201':
+          description: person created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+        '400':
+          description: 'Invalid input, object invalid'
+  /api/persons/{person_id}:
+    get:
+      summary: Retrieves person information by id
+      description: Retrieves person information by id
+      parameters:
+        - in: path
+          name: person_id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get      
+      responses:
+        '200':
+          description: person info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+        '400':
+          description: Bad input parameter
+          
+  /api/persons/{person_id}/connection:
+    get:
+      summary: Retrieves geoconnection information by person_id
+      description: Retrieves geoconnection information
+      parameters:
+        - in: path
+          name: person_id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date-time
+            example: '2016-08-29T09:12:33.001Z'
+          required: true
+          description: lower bound of date range   
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date-time
+            example: '2016-08-29T09:12:33.001Z'
+          required: true
+          description: upper bound of date range 
+        - in: query
+          name: distance
+          schema:
+            type: integer
+            example: 15
+          required: true
+          description: Proximity to a given user in meters          
+      responses:
+        '200':
+          description: Connection info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/connection'
+        '400':
+          description: Bad input parameter
+          
+components:
+  schemas:
+    person:
+      type: object
+      required:
+        - id
+        - first_name
+        - last_name
+        - company_name
+      properties:
+        id:
+          type: string
+          example: '1'
+        first_name:
+          type: string
+          example: 'james'
+        last_name:
+          type: string
+          example: 'bond'
+        company_name:
+          type: string
+          example: 'apple'
+    location:
+      type: object
+      required:
+        - id
+        - person_id
+        - coordinate
+        - creation_time
+      properties:
+        id:
+          type: string
+          example: '1'
+        person_id:
+          type: integer
+          example: 234
+        coordinate:
+          type: string
+          example: '12312312'
+        creation_time:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+    connection:
+      type: object
+      required:
+        - person
+        - location
+      properties:
+        person:
+          $ref: '#/components/schemas/person'
+        location:
+          $ref: '#/components/schemas/location'
+
